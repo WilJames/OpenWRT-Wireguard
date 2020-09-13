@@ -1,7 +1,11 @@
 # OpenWRT-Wireguard
+### Это слияние двух интрукций
+1. [На хабре](https://habr.com/ru/post/440030/)
+2. [На overclockers](https://overclockers.ru/blog/Indigo81/show/30877/wireguard-openwrt-unbound-divnyj-novyj-mir-vpn)
+3. И мои + чужие доработки людей в комментариях на хабре
 ### Описание конфигураций
-1. Сервер Debian 10 в нидерландах, только установленный
-2. Роутер Zyxel Keenetic Omni, прошивка OpenWRT 19.07
+1. Сервер Debian 10 в нидерландах, чистый
+2. Роутер Zyxel Keenetic Omni, прошивка OpenWRT 19.07.4
 
 ### Настройка сервера
 Добавляем репозиторий Wireguard
@@ -58,3 +62,4 @@ AllowedIPs = 10.50.0.1/32, fd42:42:42:ffff::1/128
 - Для другого устройства: `wg genkey | tee other_client_private_key | wg pubkey > other_client_public_key`
 
 ### Настройка DNS
+Заходим в папку `/etc/unbound/unbound.conf.d/`, удаляем содержащиеся здесь файлы
