@@ -10,34 +10,36 @@
 ### Настройка сервера
 Добавляем репозиторий Wireguard
 
-```sh
-$ echo "deb http://deb.debian.org/debian/ unstable main" >/etc/apt/sources.list.d/unstable.list
-$ printf 'Package: *\nPin: release a=unstable\nPin-Priority: 90\n' >/etc/apt/preferences.d/limit-unstable
-$ apt update
-$ apt full-upgrade -y
+```bash
+echo "deb http://deb.debian.org/debian/ unstable main" >/etc/apt/sources.list.d/unstable.list
+printf 'Package: *\nPin: release a=unstable\nPin-Priority: 90\n' >/etc/apt/preferences.d/limit-unstable
+apt update
+apt full-upgrade -y
 ```
 
 Устанвливаем часовый пояс
 
-```sh
-$ apt install tzdata
-$ dpkg-reconfigure tzdata
+```bash
+apt install tzdata
+dpkg-reconfigure tzdata
 ```
 Установка заголовков ядра
-```sh
-$ apt install "linux-headers-$(uname -r)" -y
+```bash
+apt install "linux-headers-$(uname -r)" -y
 ```
 Установка wireguard, qrencode, curl, unbound, ufw
-```sh
-$ apt install wireguard qrencode curl unbound unbound-host ufw -y
+```bash
+apt install wireguard qrencode curl unbound unbound-host ufw -y
 ```
-
+Создаем ключи, будут лежать в `/root`:
+- Для сервера: `wg genkey | tee server_private_key | wg pubkey > server_public_key`
+- Для роутера: `wg genkey | tee router_client_private_key | wg pubkey > router_client_public_key`
+- Для другого устройства: `wg genkey | tee other_client_private_key | wg pubkey > other_client_public_key`
 
 Файл концигурации wireguard, `/etc/wireguard/wg0.conf`
-```sh
+```bash
 [Interface]
 Address = 10.0.0.1/8
-Address = fd42:42:42::1/48
 SaveConfig = false
 PrivateKey = server_private_key
 
@@ -47,19 +49,19 @@ ListenPort = 51820
 
 [Peer] # Роутер
 PublicKey = router_client_public_key
-AllowedIPs = 10.0.0.0/16, fd42:42:42::/60
+AllowedIPs = 10.0.0.0/16
 
 [Peer] # Телефон или другое устройство
 PublicKey = other_client_public_key
-AllowedIPs = 10.50.0.1/32, fd42:42:42:ffff::1/128
+AllowedIPs = 10.50.0.1/32
 ```
 
-Заменить `eth0` на свой, можно проверить коммандой: `ip a`
+**Заменить `eth0` на свой, можно проверить коммандой: `ip a`**
 
-Создаем ключи, будут лежать в `/root`:
-- Для сервера: `wg genkey | tee server_private_key | wg pubkey > server_public_key`
-- Для роутера: `wg genkey | tee router_client_private_key | wg pubkey > router_client_public_key`
-- Для другого устройства: `wg genkey | tee other_client_private_key | wg pubkey > other_client_public_key`
+Включаем автозапуск при перезагрузке:
+```bash
+systemctl enable wg-quick@wg0.service
+```
 
 ### Настройка DNS
 Заходим в папку `/etc/unbound/unbound.conf.d/`, удаляем содержащиеся здесь файлы
